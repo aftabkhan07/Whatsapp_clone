@@ -11,6 +11,7 @@ function onboarding() {
   const [image, setImage] = useState("/default_avatar.png");
 
   return (
+    
     <div className="bg-panel-header-background h-screen w-screen text-white flex flex-col items-center justify-center">
       <div className="flex items-center justify-center gap-2">
         <Image src="/whatsapp.gif" alt="Whatsapp" height={300} width={300} />
