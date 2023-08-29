@@ -50,7 +50,7 @@ function login() {
             email,
             profilePicture: profileImage,
             status,
-          } = data;
+          } = data.data;
           dispatch({
             type: reducerCases.SET_USER_INFO,
             userInfo: {
