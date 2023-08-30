@@ -4,7 +4,6 @@ import { FaCamera } from "react-icons/fa";
 import ContextMenu from "./ContextMenu";
 import PhotoPicker from "./PhotoPicker";
 import PhotoLibrary from "./PhotoLibrary";
-import CaptureAudio from "./CaptureAudio";
 import CapturePhoto from "./CapturePhoto";
 
 function Avatar({ type, image, setImage }) {
