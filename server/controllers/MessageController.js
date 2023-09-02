@@ -74,14 +74,14 @@ export const addImageMessage = async (req, res, next) => {
   try {
     if (req.file) {
       const date = Date.now();
-      let fileName = "upload/images" + date + req.file.originalName;
+      let fileName = "uploads/images/" + date + req.file.originalname;
       renameSync(req.file.path, fileName);
       const prisma = getPrismaInstance();
       const { from, to } = req.query;
 
       if (from && to){
-        const message = await prisma.message.create({
-          date:{
+        const message = await prisma.messages.create({
+          data:{
             message:fileName,
             sender: { connect: { id: parseInt(from) } },
             reciever: { connect: { id: parseInt(to) } },

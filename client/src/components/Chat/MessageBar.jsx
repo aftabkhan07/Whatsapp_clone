@@ -1,6 +1,6 @@
 import { useStateProvider } from "@/context/StateContext";
 import { reducerCases } from "@/context/constants";
-import { ADD_MESSAGE_ROUTE } from "@/utils/ApiRoutes";
+import { ADD_IMAGE_MESSAGE_ROUTE, ADD_MESSAGE_ROUTE } from "@/utils/ApiRoutes";
 import axios from "axios";
 import EmojiPicker from "emoji-picker-react";
 import React, { useEffect, useRef, useState } from "react";
@@ -18,11 +18,36 @@ function MessageBar() {
   const [grabPhoto, setGrabPhoto] = useState(false);
 
   const photoPickerChange = async (e) => {
-    try{
+    try {
       const file = e.target.files[0];
-      
-    }catch(err){
-      console.log(err)
+      const formData = new FormData();
+      formData.append("image", file);
+      const response = await axios.post(ADD_IMAGE_MESSAGE_ROUTE, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        params: {
+          from: userInfo.id,
+          to: currentChatUser.id,
+        },
+      });
+
+      if (response.status === 201) {
+        socket.current.emit("send-msg", {
+          to: currentChatUser?.id,
+          from: userInfo?.id,
+          message: response.data.message,
+        });
+        dispatch({
+          type: reducerCases.ADD_MESSAGE,
+          newMessage: {
+            ...response.data.message,
+          },
+          fromSelf: true,
+        });
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -122,7 +147,7 @@ function MessageBar() {
           />
         </div>
         <div className="flex w-10 items-center justify-center">
-          <button className="">
+          <button>
             <MdSend
               className="text-panel-header-icon cursor-pointer text-xl"
               title="Send Message"
