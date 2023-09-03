@@ -64,6 +64,7 @@ export const getMessages = async (req, res, next) => {
         messageStatus: "read",
       },
     });
+    
     res.status(200).json({ messages });
   } catch (err) {
     next(err);
