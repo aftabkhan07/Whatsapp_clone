@@ -10,10 +10,12 @@ import axios from "axios";
 import { CHECK_USER_ROUTE, GET_MESSAGES_ROUTE, HOST } from "@/utils/ApiRoutes";
 import Chat from "./Chat/Chat";
 import { io } from "socket.io-client";
+import SearchMessages from "./Chat/SearchMessages";
 
 function Main() {
   const router = useRouter();
-  const [{ userInfo, currentChatUser }, dispatch] = useStateProvider();
+  const [{ userInfo, currentChatUser, messagesSearch }, dispatch] =
+    useStateProvider();
   const [redirectLogin, setRedirectLogin] = useState(false);
   const [socketEvent, setSocketEvent] = useState(false);
   const socket = useRef();
@@ -83,7 +85,7 @@ function Main() {
       } = await axios.get(
         `${GET_MESSAGES_ROUTE}/${userInfo?.id}/${currentChatUser?.id}`
       );
-      console.log(messages)
+      console.log(messages);
       dispatch({ type: reducerCases.SET_MESSAGES, messages });
     };
     if (currentChatUser?.id) {
@@ -95,7 +97,14 @@ function Main() {
     <>
       <div className="grid grid-cols-main h-screen w-screen max-h-screen max-w-full overflow-hidden">
         <ChatList />
-        {currentChatUser ? <Chat /> : <Empty />}
+        {currentChatUser ? (
+          <div className={messagesSearch ? "grid grid-cols-2" : "grid-cols-2"}>
+            <Chat />
+            {messagesSearch && <SearchMessages />}
+          </div>
+        ) : (
+          <Empty />
+        )}
       </div>
     </>
   );
