@@ -64,7 +64,7 @@ export const getMessages = async (req, res, next) => {
         messageStatus: "read",
       },
     });
-    
+
     res.status(200).json({ messages });
   } catch (err) {
     next(err);
@@ -80,20 +80,20 @@ export const addImageMessage = async (req, res, next) => {
       const prisma = getPrismaInstance();
       const { from, to } = req.query;
 
-      if (from && to){
+      if (from && to) {
         const message = await prisma.messages.create({
-          data:{
-            message:fileName,
+          data: {
+            message: fileName,
             sender: { connect: { id: parseInt(from) } },
             reciever: { connect: { id: parseInt(to) } },
-            type:"image",
-          }
-        })
-        return res.status(201).json({message})
+            type: "image",
+          },
+        });
+        return res.status(201).json({ message });
       }
-      return res.status(400).json("From & to is required")
+      return res.status(400).json("From & to is required");
     }
-    return res.status(400).json("Image is required.")
+    return res.status(400).json("Image is required.");
   } catch (err) {
     next(err);
   }
@@ -108,20 +108,119 @@ export const addAudioMessage = async (req, res, next) => {
       const prisma = getPrismaInstance();
       const { from, to } = req.query;
 
-      if (from && to){
+      if (from && to) {
         const message = await prisma.messages.create({
-          data:{
-            message:fileName,
+          data: {
+            message: fileName,
             sender: { connect: { id: parseInt(from) } },
             reciever: { connect: { id: parseInt(to) } },
-            type:"audio",
-          }
-        })
-        return res.status(201).json({message})
+            type: "audio",
+          },
+        });
+        return res.status(201).json({ message });
       }
-      return res.status(400).json("From & to is required")
+      return res.status(400).json("From & to is required");
     }
-    return res.status(400).json("Audio is required.")
+    return res.status(400).json("Audio is required.");
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getInitialContactswithMessages = async (req, res, next) => {
+  try {
+    const userId = parseInt(req.params.from);
+    const prisma = getPrismaInstance();
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        sentMessages: {
+          include: {
+            reciever: true,
+            sender: true,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+        recievedMessages: {
+          include: {
+            reciever: true,
+            sender: true,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
+    });
+    const messages = [...user.sentMessages, ...user.recievedMessages];
+    messages.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    const users = new Map();
+    const messageStatusChange = [];
+
+    messages.forEach((msg) => {
+      const isSender = msg.senderId === userId;
+      const calculatedId = isSender ? msg.receiverId : msg.senderId;
+      if (msg.message.status === "sent") {
+        messageStatusChange.push(msg.id);
+      }
+
+      const {
+        id,
+        type,
+        message,
+        messageStatus,
+        createdAt,
+        senderId,
+        receiverId,
+      } = msg;
+      if (!users.get(calculatedId)) {
+        let user = {
+          messageId: id,
+          type,
+          message,
+          messageStatus,
+          createdAt,
+          senderId,
+          receiverId,
+        };
+        if (isSender) {
+          user = {
+            ...user,
+            ...msg.receiver,
+            totalUnreadMessages: 0,
+          };
+        } else {
+          user = {
+            ...user,
+            ...msg.receiver,
+            totalUnreadMessages: messageStatus !== "read" ? 1 : 0,
+          };
+        }
+        users.set(calculatedId, { ...user });
+      } else if (messageStatus !== "read" && !isSender) {
+        const users = get(calculatedId);
+        users.set(calculatedId, {
+          ...user,
+          totalUnreadMessages: user.totalUnreadMessages + 1,
+        });
+      }
+    });
+    if (messageStatusChange.length) {
+      await prisma.messages.updateMany({
+        where: {
+          id: { in: messageStatusChange },
+        },
+        data: {
+          messageStatus: "delivered",
+        },
+      });
+    }
+    return res.status(200).json({
+      users: Array.from(users.values()),
+      onlineUsers: Array.from(onlineUsers.keys()),
+    });
   } catch (err) {
     next(err);
   }
