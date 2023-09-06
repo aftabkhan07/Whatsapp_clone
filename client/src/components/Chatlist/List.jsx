@@ -6,7 +6,8 @@ import React, { useEffect } from "react";
 import ChatLIstItem from "./ChatLIstItem";
 
 function List() {
-  const [{ userInfo, userContacts }, dispatch] = useStateProvider();
+  const [{ userInfo, userContacts, filteredContacts }, dispatch] =
+    useStateProvider();
 
   useEffect(() => {
     const getContacts = async () => {
@@ -14,21 +15,25 @@ function List() {
         const {
           data: { users, onlineUsers },
         } = await axios(`${GET_INITIAL_CONTACTS_ROUTE}/${userInfo.id}`);
-        console.log(users)
+        console.log(users);
         dispatch({ type: reducerCases.SET_ONLINE_USERS, onlineUsers });
         dispatch({ type: reducerCases.SET_USER_CONTACTS, userContacts: users });
       } catch (err) {
         console.log(err);
       }
     };
-    getContacts()
+    getContacts();
   }, [userInfo]);
 
   return (
     <div className="bg-search-input-container-background flex-auto overflow-auto max-h-full custom-scrollbar">
-      {userContacts.map((contact) => (
-        <ChatLIstItem data={contact} key={contact.id} />
-      ))}
+      {filteredContacts && filteredContacts.length > 0
+        ? filteredContacts.map((contact) => (
+            <ChatLIstItem data={contact} key={contact.id} />
+          ))
+        : (userContacts.map((contact) => (
+            <ChatLIstItem data={contact} key={contact.id} />
+          )))}
     </div>
   );
 }

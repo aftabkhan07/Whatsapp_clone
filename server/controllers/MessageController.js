@@ -155,14 +155,14 @@ export const getInitialContactswithMessages = async (req, res, next) => {
       },
     });
     const messages = [...user.sentMessages, ...user.recievedMessages];
-    messages.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    messages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     const users = new Map();
     const messageStatusChange = [];
 
     messages.forEach((msg) => {
       const isSender = msg.senderId === userId;
-      const calculatedId = isSender ? msg.receiverId : msg.senderId;
-      if (msg.message.status === "sent") {
+      const calculatedId = isSender ? msg.recieverId : msg.senderId;
+      if (msg.messageStatus === "sent") {
         messageStatusChange.push(msg.id);
       }
 
@@ -173,7 +173,7 @@ export const getInitialContactswithMessages = async (req, res, next) => {
         messageStatus,
         createdAt,
         senderId,
-        receiverId,
+        recieverId,
       } = msg;
       if (!users.get(calculatedId)) {
         let user = {
@@ -183,24 +183,24 @@ export const getInitialContactswithMessages = async (req, res, next) => {
           messageStatus,
           createdAt,
           senderId,
-          receiverId,
+          recieverId,
         };
         if (isSender) {
           user = {
             ...user,
-            ...msg.receiver,
+            ...msg.reciever,
             totalUnreadMessages: 0,
           };
         } else {
           user = {
             ...user,
-            ...msg.receiver,
+            ...msg.sender,
             totalUnreadMessages: messageStatus !== "read" ? 1 : 0,
           };
         }
         users.set(calculatedId, { ...user });
       } else if (messageStatus !== "read" && !isSender) {
-        const users = get(calculatedId);
+        const user = users.get(calculatedId);
         users.set(calculatedId, {
           ...user,
           totalUnreadMessages: user.totalUnreadMessages + 1,
