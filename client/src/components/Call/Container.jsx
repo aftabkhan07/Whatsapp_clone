@@ -30,12 +30,12 @@ function Container({ data }) {
         const {
           data: { token: returnedToken },
         } = await axios.get(`${GET_CALL_TOKEN}/${userInfo.id}`);
-
         setToken(returnedToken);
       } catch (err) {
         console.log(err);
       }
     };
+    getToken();
   }, [callAccepted]);
 
   useEffect(() => {
@@ -74,7 +74,7 @@ function Container({ data }) {
                 streamList[0].streamID
               ) {
                 zg.destroyStream(localStream);
-                zg.stopPublishStream(streamList[0].streamID);
+                zg.stopPublishingStream(streamList[0].streamID);
                 zg.logoutRoom(data.roomId.toString());
                 dispatch({ type: reducerCases.END_CALL });
               }
@@ -90,10 +90,10 @@ function Container({ data }) {
           const localStream = await zg.createStream({
             camera: {
               audio: true,
-              video: data.calltype === "video" ? true : false,
+              video: data.callType === "video" ? true : false,
             },
           });
-          const localVideo = document.getElementsById("local-audio");
+          const localVideo = document.getElementById("local-audio");
           const videoElement = document.createElement(
             data.callType === "video" ? "video" : "audio"
           );
@@ -120,16 +120,17 @@ function Container({ data }) {
   }, [token]);
 
   const endCall = () => {
-    const id = data.id
+    const id = data.id;
+    console.log(zgVar, localStream, publishStream)
     if (zgVar && localStream && publishStream) {
       zgVar.destroyStream(localStream);
-      zgVar.stopPublishStream(publishStream);
-      zgVar.logoutRoom(data.roomId.toString())
+      zgVar.stopPublishingStream(publishStream);
+      zgVar.logoutRoom(data.roomId.toString());
     }
-    if (data.callType === "video") {
-      socket.current.emit("reject-video-call", { from: data.id });
+    if (data.callType === "voice") {
+      socket.current.emit("reject-voice-call", { from: id });
     } else {
-      socket.current.emit("reject-voice-call", { from: data.id });
+      socket.current.emit("reject-video-call", { from: id });
     }
     dispatch({ type: reducerCases.END_CALL });
   };
@@ -144,7 +145,7 @@ function Container({ data }) {
             : "Calling..."}
         </span>
       </div>
-      {(!callAccepted || data.callType === "voice") && (
+      {(!callAccepted || data.callType === "audio") && (
         <div className="my-24">
           <Image
             src={data.profilePicture}

@@ -64,22 +64,23 @@ export const getAllUsers = async (req, res, next) => {
   }
 };
 
-export const generateToken = (req, res, next) => {
+export const generateToken = async (req, res, next) => {
   try {
     const appId = parseInt(process.env.ZEGO_APP_ID);
     const serverSecret = process.env.ZEGO_SERVER_ID;
     const userId = req.params.userId;
     const effectiveTime = 3600;
     const payload = "";
+    // console.log({appId, serverSecret, userId})
     if (appId && serverSecret && userId) {
-      const token = generateToken04(
+      const token = await generateToken04(
         appId,
         userId,
         serverSecret,
         effectiveTime,
         payload
       );
-      res.status(200).json({ token });
+      return res.status(200).json({ token });
     }
     return res.status(400).send("user id, app id and serversecret is required");
   } catch (err) {
