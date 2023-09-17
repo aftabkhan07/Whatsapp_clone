@@ -26,6 +26,7 @@ function ContextMenu({ options, cordinates, contextMenu, setContextMenu }) {
     setContextMenu(false);
     callback();
   };
+
   return (
     <div
       ref={contextMenuRef}
