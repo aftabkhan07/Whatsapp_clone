@@ -35,6 +35,7 @@ function ChatListHeader() {
   const handleAllContactsPage = () => {
     dispatch({ type: reducerCases.SET_ALL_CONTACTS_PAGE });
   };
+  
   return (
     <div className="h-16 px-4 py-3 flex justify-between items-center">
       <div className="cursor-pointer">

@@ -6,8 +6,7 @@ import React, { useEffect } from "react";
 import ChatLIstItem from "./ChatLIstItem";
 
 function List() {
-  const [{ userInfo, userContacts, filteredContacts }, dispatch] =
-    useStateProvider();
+  const [{ userInfo, userContacts, filteredContacts }, dispatch] = useStateProvider();
 
   useEffect(() => {
     const getContacts = async () => {

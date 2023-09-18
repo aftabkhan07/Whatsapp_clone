@@ -83,9 +83,7 @@ function Main() {
       socket.current.on("msg-recieve", (data) => {
         dispatch({
           type: reducerCases.ADD_MESSAGE,
-          newMessage: {
-            ...data.message,
-          },
+          newMessage: { ...data.message },
         });
       });
 
@@ -162,7 +160,7 @@ function Main() {
             <div
               className={messagesSearch ? "grid grid-cols-2" : "grid-cols-2"}
             >
-              <Chat />
+              <Chat /> 
               {messagesSearch && <SearchMessages />}
             </div>
           ) : (
