@@ -1,6 +1,7 @@
 import getPrismaInstance from "../utils/PrismaClient.js";
 import { renameSync } from "fs";
 
+
 export const addMessage = async (req, res, next) => {
   try {
     const prisma = getPrismaInstance();
@@ -16,6 +17,7 @@ export const addMessage = async (req, res, next) => {
         },
         include: { sender: true, reciever: true },
       });
+      // console.log(newMessage)
       return res.status(201).send({ message: newMessage });
     }
     return res.status(400).send("from, to and message is required.");
@@ -23,6 +25,7 @@ export const addMessage = async (req, res, next) => {
     next(err);
   }
 };
+
 
 export const getMessages = async (req, res, next) => {
   try {
@@ -71,6 +74,7 @@ export const getMessages = async (req, res, next) => {
   }
 };
 
+
 export const addImageMessage = async (req, res, next) => {
   try {
     if (req.file) {
@@ -99,6 +103,7 @@ export const addImageMessage = async (req, res, next) => {
   }
 };
 
+
 export const addAudioMessage = async (req, res, next) => {
   try {
     if (req.file) {
@@ -126,6 +131,7 @@ export const addAudioMessage = async (req, res, next) => {
     next(err);
   }
 };
+
 
 export const getInitialContactswithMessages = async (req, res, next) => {
   try {
@@ -207,6 +213,7 @@ export const getInitialContactswithMessages = async (req, res, next) => {
         });
       }
     });
+
     if (messageStatusChange.length) {
       await prisma.messages.updateMany({
         where: {
@@ -217,6 +224,7 @@ export const getInitialContactswithMessages = async (req, res, next) => {
         },
       });
     }
+
     return res.status(200).json({
       users: Array.from(users.values()),
       onlineUsers: Array.from(onlineUsers.keys()),

@@ -48,6 +48,7 @@ export const getAllUsers = async (req, res, next) => {
         about: true,
       },
     });
+    // console.log(users)
 
     const usersGroupedByInitialLetter = {};
 
